@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>PDF Compressor - Marketing The Seminyak</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <header>
+    <div class="header-content">
+      <img
+        src="https://cdn-5d8995b3f911c90950a6130b.closte.com/wp-content/uploads/2024/08/the-seminyak-logo-aug24v1.png"
+        alt="The Seminyak Logo"
+      >
+
+      <div class="brand-block">
+        <span class="brand-eyebrow">The Seminyak</span>
+        <span class="brand-name">PDF Compressor</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+
+      <div class="card-heading">
+        <h1 class="card-title">PDF Compressor</h1>
+        <p class="card-subtitle">
+          Reduce PDF file size directly in your browser.
+        </p>
+      </div>
+
+      <div class="notice">
+        <svg
+          width="18"
+          height="18"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          aria-hidden="true"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M13 16h-1v-4h-1m1-4h.01M12 2a10 10 0 100 20 10 10 0 000-20z"
+          />
+        </svg>
+
+        <span>
+          Best for visual PDFs. Text may become non-selectable.
+        </span>
+      </div>
+
+      <div class="form-group">
+        <label for="pdfFile">
+          PDF File <span class="req">*</span>
+        </label>
+
+        <label
+          class="file-drop-area"
+          id="dropArea"
+          for="pdfFile"
+        >
+          <input
+            type="file"
+            id="pdfFile"
+            accept="application/pdf,.pdf"
+          >
+
+          <span class="file-icon">
+            <svg
+              width="32"
+              height="32"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              aria-hidden="true"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.6"
+                d="M7 16a4 4 0 01.88-7.9A5 5 0 1118.9 10H19a3 3 0 010 6h-1m-5-4v8m0 0l-3-3m3 3l3-3"
+              />
+            </svg>
+          </span>
+
+          <span class="file-msg" id="fileName">
+            Choose a PDF
+          </span>
+
+          <span class="file-submsg" id="fileSize">
+            Select a compression mode below
+          </span>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label for="compressionMode">
+          Compression Mode
+        </label>
+
+        <div class="select-wrapper">
+          <select id="compressionMode">
+            <option value="low">
+              Low compression - best quality
+            </option>
+
+            <option value="medium" selected>
+              Medium compression - balanced
+            </option>
+
+            <option value="high">
+              High compression - smaller file
+            </option>
+          </select>
+
+          <svg
+            class="select-arrow"
+            width="16"
+            height="16"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            aria-hidden="true"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </div>
+
+        <p class="field-hint" id="modeDescription">
+          150 DPI with balanced image quality.
+        </p>
+      </div>
+
+      <button
+        id="compressBtn"
+        type="button"
+        disabled
+      >
+        <span class="spinner" id="spinner"></span>
+        <span id="buttonText">Compress PDF</span>
+      </button>
+
+      <p
+        class="field-hint"
+        id="statusText"
+        style="margin-top: 14px;"
+      ></p>
+
+      <a
+        class="file-link"
+        id="downloadLink"
+        href="#"
+        download
+        style="display: none; margin-top: 10px;"
+      >
+        Download compressed PDF
+      </a>
+
+    </section>
+  </main>
+
+  <footer>
+    <a href="index.html">Back to Dashboard</a>
+    <span>&copy; 2026 The Seminyak Marketing Team</span>
+  </footer>
+
+  <div id="toast"></div>
+
+  <!-- PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <!-- jsPDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+  <script>
+    const pdfInput = document.getElementById('pdfFile');
+    const dropArea = document.getElementById('dropArea');
+    const fileName = document.getElementById('fileName');
+    const fileSize = document.getElementById('fileSize');
+
+    const modeSelect = document.getElementById('compressionMode');
+    const modeDescription = document.getElementById('modeDescription');
+
+    const compressBtn = document.getElementById('compressBtn');
+    const spinner = document.getElementById('spinner');
+    const buttonText = document.getElementById('buttonText');
+
+    const statusText = document.getElementById('statusText');
+    const downloadLink = document.getElementById('downloadLink');
+    const toast = document.getElementById('toast');
+
+    let currentDownloadUrl = null;
+    let isProcessing = false;
+
+    /*
+     * PDF.js menggunakan sekitar 72 unit per inch.
+     * Scale = target DPI / 72.
+     */
+    const presets = {
+      low: {
+        dpi: 200,
+        quality: 0.92,
+        compression: 'SLOW',
+        description: '200 DPI with the best image quality.'
+      },
+
+      medium: {
+        dpi: 150,
+        quality: 0.82,
+        compression: 'MEDIUM',
+        description: '150 DPI with balanced image quality.'
+      },
+
+      high: {
+        dpi: 110,
+        quality: 0.68,
+        compression: 'FAST',
+        description: '110 DPI for a smaller output file.'
+      }
+    };
+
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    function formatBytes(bytes) {
+      if (!bytes || bytes <= 0) {
+        return '0 KB';
+      }
+
+      const units = ['B', 'KB', 'MB', 'GB'];
+      const index = Math.min(
+        Math.floor(Math.log(bytes) / Math.log(1024)),
+        units.length - 1
+      );
+
+      const value = bytes / Math.pow(1024, index);
+      const decimals = index === 0 ? 0 : 2;
+
+      return `${value.toFixed(decimals)} ${units[index]}`;
+    }
+
+    function showToast(message, type = 'success') {
+      toast.textContent = message;
+      toast.className = `show ${type}`;
+
+      window.setTimeout(() => {
+        toast.className = '';
+      }, 2600);
+    }
+
+    function updateModeDescription() {
+      const selectedPreset = presets[modeSelect.value];
+
+      modeDescription.textContent =
+        selectedPreset.description;
+    }
+
+    function clearDownload() {
+      downloadLink.style.display = 'none';
+      downloadLink.removeAttribute('href');
+
+      if (currentDownloadUrl) {
+        URL.revokeObjectURL(currentDownloadUrl);
+        currentDownloadUrl = null;
+      }
+    }
+
+    function setBusy(busy) {
+      isProcessing = busy;
+
+      pdfInput.disabled = busy;
+      modeSelect.disabled = busy;
+
+      compressBtn.disabled =
+        busy || !pdfInput.files || !pdfInput.files.length;
+
+      spinner.style.display =
+        busy ? 'inline-block' : 'none';
+
+      buttonText.textContent =
+        busy ? 'Compressing...' : 'Compress PDF';
+    }
+
+    function isPdfFile(file) {
+      if (!file) {
+        return false;
+      }
+
+      const hasPdfMimeType =
+        file.type === 'application/pdf';
+
+      const hasPdfExtension =
+        file.name.toLowerCase().endsWith('.pdf');
+
+      return hasPdfMimeType || hasPdfExtension;
+    }
+
+    function setSelectedFile(file) {
+      if (!file) {
+        return;
+      }
+
+      if (!isPdfFile(file)) {
+        showToast('Please choose a valid PDF file.', 'error');
+        return;
+      }
+
+      clearDownload();
+
+      dropArea.classList.add('has-file');
+
+      fileName.textContent = file.name;
+      fileSize.textContent = formatBytes(file.size);
+
+      statusText.textContent = '';
+      compressBtn.disabled = false;
+    }
+
+    function calculateReduction(originalSize, outputSize) {
+      if (!originalSize || outputSize >= originalSize) {
+        return null;
+      }
+
+      return Math.round(
+        ((originalSize - outputSize) / originalSize) * 100
+      );
+    }
+
+    async function renderPageToCanvas(page, preset) {
+      const scale = preset.dpi / 72;
+
+      const viewport = page.getViewport({
+        scale: scale
+      });
+
+      const canvas = document.createElement('canvas');
+
+      const context = canvas.getContext('2d', {
+        alpha: false,
+        willReadFrequently: false
+      });
+
+      if (!context) {
+        throw new Error('Canvas is not supported by this browser.');
+      }
+
+      canvas.width = Math.ceil(viewport.width);
+      canvas.height = Math.ceil(viewport.height);
+
+      /*
+       * Memberikan background putih untuk menghindari
+       * background transparan berubah menjadi hitam.
+       */
+      context.save();
+      context.fillStyle = '#ffffff';
+      context.fillRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+      );
+      context.restore();
+
+      context.imageSmoothingEnabled = true;
+      context.imageSmoothingQuality = 'high';
+
+      await page.render({
+        canvasContext: context,
+        viewport: viewport,
+        background: '#ffffff'
+      }).promise;
+
+      return canvas;
+    }
+
+    pdfInput.addEventListener('change', () => {
+      const selectedFile = pdfInput.files[0];
+
+      if (!selectedFile) {
+        return;
+      }
+
+      if (!isPdfFile(selectedFile)) {
+        pdfInput.value = '';
+        showToast('Please choose a PDF file.', 'error');
+        return;
+      }
+
+      setSelectedFile(selectedFile);
+    });
+
+    modeSelect.addEventListener('change', () => {
+      updateModeDescription();
+      clearDownload();
+      statusText.textContent = '';
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropArea.addEventListener(eventName, event => {
+        event.preventDefault();
+
+        if (!isProcessing) {
+          dropArea.classList.add('dragover');
+        }
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropArea.addEventListener(eventName, event => {
+        event.preventDefault();
+        dropArea.classList.remove('dragover');
+      });
+    });
+
+    dropArea.addEventListener('drop', event => {
+      if (isProcessing) {
+        return;
+      }
+
+      const droppedFile =
+        event.dataTransfer.files[0];
+
+      if (!isPdfFile(droppedFile)) {
+        showToast('Please choose a PDF file.', 'error');
+        return;
+      }
+
+      const transfer = new DataTransfer();
+      transfer.items.add(droppedFile);
+
+      pdfInput.files = transfer.files;
+
+      setSelectedFile(droppedFile);
+    });
+
+    compressBtn.addEventListener('click', async () => {
+      const file = pdfInput.files[0];
+
+      if (!file) {
+        showToast('Please choose a PDF file.', 'error');
+        return;
+      }
+
+      if (!isPdfFile(file)) {
+        showToast('The selected file is not a PDF.', 'error');
+        return;
+      }
+
+      const preset = presets[modeSelect.value];
+
+      setBusy(true);
+      clearDownload();
+
+      statusText.textContent = 'Reading PDF file...';
+
+      let sourcePdf = null;
+      let outputPdf = null;
+
+      try {
+        const fileBuffer = await file.arrayBuffer();
+
+        sourcePdf = await pdfjsLib.getDocument({
+          data: fileBuffer
+        }).promise;
+
+        if (!sourcePdf.numPages) {
+          throw new Error('The PDF does not contain any pages.');
+        }
+
+        const { jsPDF } = window.jspdf;
+
+        for (
+          let pageNumber = 1;
+          pageNumber <= sourcePdf.numPages;
+          pageNumber++
+        ) {
+          statusText.textContent =
+            `Processing page ${pageNumber} of ${sourcePdf.numPages}...`;
+
+          /*
+           * Beri kesempatan browser memperbarui UI
+           * sebelum memproses halaman berikutnya.
+           */
+          await new Promise(resolve => {
+            window.requestAnimationFrame(resolve);
+          });
+
+          const page =
+            await sourcePdf.getPage(pageNumber);
+
+          /*
+           * Viewport skala 1 digunakan sebagai ukuran fisik
+           * halaman PDF dalam point.
+           */
+          const originalViewport =
+            page.getViewport({ scale: 1 });
+
+          const pageWidth =
+            originalViewport.width;
+
+          const pageHeight =
+            originalViewport.height;
+
+          const orientation =
+            pageWidth > pageHeight
+              ? 'landscape'
+              : 'portrait';
+
+          const canvas =
+            await renderPageToCanvas(page, preset);
+
+          const imageData = canvas.toDataURL(
+            'image/jpeg',
+            preset.quality
+          );
+
+          if (!outputPdf) {
+            outputPdf = new jsPDF({
+              orientation: orientation,
+              unit: 'pt',
+              format: [pageWidth, pageHeight],
+              compress: true,
+              putOnlyUsedFonts: true
+            });
+          } else {
+            outputPdf.addPage(
+              [pageWidth, pageHeight],
+              orientation
+            );
+          }
+
+          outputPdf.addImage(
+            imageData,
+            'JPEG',
+            0,
+            0,
+            pageWidth,
+            pageHeight,
+            undefined,
+            preset.compression
+          );
+
+          /*
+           * Bersihkan memori setelah setiap halaman.
+           */
+          page.cleanup();
+
+          canvas.width = 1;
+          canvas.height = 1;
+        }
+
+        if (!outputPdf) {
+          throw new Error('Unable to create the output PDF.');
+        }
+
+        statusText.textContent =
+          'Preparing download...';
+
+        const blob = outputPdf.output('blob');
+
+        currentDownloadUrl =
+          URL.createObjectURL(blob);
+
+        const originalName =
+          file.name.replace(/\.pdf$/i, '');
+
+        downloadLink.href =
+          currentDownloadUrl;
+
+        downloadLink.download =
+          `${originalName}-compressed.pdf`;
+
+        downloadLink.style.display =
+          'inline-flex';
+
+        const reduction =
+          calculateReduction(file.size, blob.size);
+
+        if (reduction !== null) {
+          statusText.textContent =
+            `${formatBytes(file.size)} → ${formatBytes(blob.size)} · ${reduction}% smaller`;
+        } else {
+          statusText.textContent =
+            `${formatBytes(file.size)} → ${formatBytes(blob.size)}`;
+        }
+
+        if (blob.size >= file.size) {
+          showToast(
+            'PDF created, but the output is not smaller.',
+            'error'
+          );
+        } else {
+          showToast('PDF compression completed.');
+        }
+      } catch (error) {
+        console.error('PDF compression error:', error);
+
+        statusText.textContent = '';
+
+        showToast(
+          error.message || 'Compression failed.',
+          'error'
+        );
+      } finally {
+        if (sourcePdf) {
+          try {
+            await sourcePdf.destroy();
+          } catch (destroyError) {
+            console.warn(
+              'Unable to destroy PDF document:',
+              destroyError
+            );
+          }
+        }
+
+        setBusy(false);
+      }
+    });
+
+    window.addEventListener('beforeunload', () => {
+      if (currentDownloadUrl) {
+        URL.revokeObjectURL(currentDownloadUrl);
+      }
+    });
+
+    updateModeDescription();
+  </script>
+
+</body>
+</html>

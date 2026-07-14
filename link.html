@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Link Bank - Marketing</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafaf9;
+      --surface: #ffffff;
+      --ink: #292524;
+      --muted: #78716c;
+      --line: #e7e5e4;
+      --color-brand: #BA8F2E;
+      --color-brand-hover: #9c7726;
+      --color-brand-light: rgba(186, 143, 46, 0.08);
+      --color-success: #10b981;
+      --color-error: #ef4444;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── HEADER ── */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-request {
+      margin-left: 12px;
+      padding: 8px 14px;
+      border: 1px solid rgba(186,143,46,.25);
+      background: rgba(186,143,46,.08);
+      color: var(--color-brand);
+      text-decoration: none;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all .2s ease;
+      white-space: nowrap;
+    }
+
+    .header-request:hover {
+      background: var(--color-brand);
+      color: #fff;
+      border-color: var(--color-brand);
+      transform: translateY(-1px);
+    }
+
+    .brand-block {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.2;
+    }
+
+    .brand-eyebrow {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--color-brand);
+    }
+
+    .brand-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .header-right {
+      text-align: right;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    #clock-date { font-weight: 500; }
+    #clock-time { font-size: 14px; color: var(--color-brand); font-weight: 700; }
+
+    /* ── MAIN ── */
+    main {
+      flex: 1;
+      max-width: 780px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 40px 24px 60px;
+    }
+
+    .headline { margin-bottom: 32px; }
+
+    .headline h1 {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+
+    .headline h1 span { color: var(--color-brand); }
+
+    .headline p {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 520px;
+    }
+
+    /* ── CONFIG BANNER ── */
+    .config-banner {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      font-size: 13px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      margin-bottom: 24px;
+      display: none;
+    }
+    .config-banner code {
+      background: #fee2e2;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── FILTER TABS ── */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .search-box {
+      margin-left: 0;
+    }
+
+    .search-input {
+      width: 220px;
+      padding: 8px 14px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: 13px;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: all .2s ease;
+    }
+
+    .search-input:focus {
+      border-color: var(--color-brand);
+      box-shadow: 0 0 0 3px var(--color-brand-light);
+    }
+
+    .tab-btn {
+      padding: 6px 16px;
+      border-radius: 100px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .tab-btn:hover { border-color: var(--color-brand); color: var(--color-brand); }
+
+    .tab-btn.active {
+      background: var(--color-brand);
+      border-color: var(--color-brand);
+      color: #fff;
+    }
+
+    /* ── LINK LIST ── */
+    .link-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .link-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .link-card:hover {
+      border-color: var(--color-brand);
+      box-shadow: 0 0 0 3px var(--color-brand-light);
+    }
+
+    .link-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ink);
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .link-category-badge {
+      font-size: 11px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 100px;
+      background: var(--color-brand-light);
+      color: var(--color-brand);
+      flex-shrink: 0;
+      display: none;
+    }
+
+    .link-actions { display: flex; gap: 6px; flex-shrink: 0; }
+
+    .btn-action {
+      padding: 6px 14px;
+      border-radius: 6px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-action:hover {
+      background: var(--bg);
+      border-color: var(--color-brand);
+      color: var(--color-brand);
+    }
+
+    .btn-action.copy {
+      background: var(--color-brand);
+      border-color: var(--color-brand);
+      color: #fff;
+    }
+
+    .btn-action.copy:hover { background: var(--color-brand-hover); border-color: var(--color-brand-hover); }
+    .btn-action.copy.copied { background: var(--color-success); border-color: var(--color-success); }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 14px; }
+    .empty-state svg { opacity: 0.3; margin-bottom: 12px; }
+
+    /* ── LOADING ── */
+    .skeleton { display: flex; flex-direction: column; gap: 8px; }
+    .skeleton-row {
+      height: 52px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--line) 25%, #f0eeec 50%, var(--line) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.4s infinite;
+    }
+    @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ── TOAST ── */
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--ink);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 500;
+      padding: 10px 20px;
+      border-radius: 100px;
+      opacity: 0;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      pointer-events: none;
+      z-index: 100;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+    /* ── FOOTER ── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 12px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+    }
+    footer a { color: var(--color-brand); text-decoration: none; font-weight: 500; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 480px) {
+      .link-card { flex-wrap: nowrap; gap: 8px; }
+      .link-name { font-size: 13px; flex: 1; min-width: 0; }
+      .link-category-badge { display: none !important; }
+      .btn-action { padding: 5px 10px; font-size: 11px; }
+      .header-right { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-left">
+      <img src="https://cdn-5d8995b3f911c90950a6130b.closte.com/wp-content/uploads/2024/08/the-seminyak-logo-aug24v1.png"
+           alt="The Seminyak"
+           style="width:40px;height:40px;object-fit:contain;border-radius:8px;">
+
+      <div class="brand-block">
+        <span class="brand-eyebrow">The Seminyak</span>
+        <span class="brand-name">Link Bank</span>
+      </div>
+    </div>
+    <div class="header-right">
+      <div id="clock-date">—</div>
+      <div id="clock-time">--:--</div>
+    </div>
+  </header>
+
+  <main>
+    <div class="headline">
+      <h1>The Seminyak <span>Link Bank</span></h1>
+      <p>This link is for internal team use only. Please copy the link below if you would like to share it with a guest.</p>
+    </div>
+
+    <div class="config-banner" id="configBanner">
+      ⚠ Supabase belum siap. Cek koneksi, CDN Supabase, atau isi <code>SUPABASE_CONFIG.URL</code> dan <code>SUPABASE_CONFIG.ANON_KEY</code> di <code>config.js</code>.
+    </div>
+
+    <div class="filter-bar" id="filterBar">
+      <button class="tab-btn active" data-cat="All" onclick="filterLinks('All')">All</button>
+
+      <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search link..." onkeyup="searchLinks()">
+      </div>
+    </div>
+
+    <div id="linkList">
+      <div class="skeleton">
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+        <div class="skeleton-row"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    © 2026 The Seminyak Marketing Team &nbsp;
+  </footer>
+
+  <div id="toast"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script src="config.js"></script>
+  <script>
+    // ── CLOCK ──
+    function updateClock() {
+      const now = new Date();
+      const dateEl = document.getElementById('clock-date');
+      const timeEl = document.getElementById('clock-time');
+      const days = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+      const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      dateEl.textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+      timeEl.textContent = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ── SUPABASE CLIENT (read-only, RLS mengizinkan SELECT publik) ──
+    const LINK_CONFIG = window.SUPABASE_CONFIG || {};
+    const hasSupabaseClient = !!(window.supabase && LINK_CONFIG.URL && LINK_CONFIG.ANON_KEY && LINK_CONFIG.URL.indexOf('PASTE_YOUR') === -1);
+    const sbLink = hasSupabaseClient
+      ? window.supabase.createClient(LINK_CONFIG.URL, LINK_CONFIG.ANON_KEY)
+      : null;
+
+    // ── CONFIG CHECK ──
+    if (!hasSupabaseClient) {
+      document.getElementById('configBanner').style.display = 'block';
+    }
+
+    // ── STATE ──
+    let allLinks = [];
+    let activeCategory = 'All';
+
+    // ── LOAD LINKS ──
+    async function loadLinks() {
+      if (!sbLink) {
+        document.getElementById('linkList').innerHTML = '<div class="empty-state">Gagal memuat Supabase. Silakan refresh halaman atau cek konfigurasi.</div>';
+        return;
+      }
+
+      const { data, error } = await sbLink
+        .from('links')
+        .select('id, name, url, category')
+        .order('category', { ascending: true })
+        .order('name', { ascending: true });
+
+      if (error) {
+        console.error(error);
+        document.getElementById('linkList').innerHTML = '<div class="empty-state">Gagal memuat data. Silakan refresh halaman.</div>';
+        return;
+      }
+
+      // Normalisasi field `url` → `link` biar sisa kode di bawah tidak perlu diubah
+      allLinks = (data || []).map(item => ({ id: item.id, name: item.name, link: item.url, category: item.category }));
+      renderLinks(allLinks, activeCategory === 'All');
+    }
+
+    function loadCategories() {
+      const filterBar = document.getElementById('filterBar');
+      const searchBox = filterBar.querySelector('.search-box');
+      const defaultCats = ["General", "Food & Beverage", "Kahyangan Spa", "Others"];
+
+      // Gabungkan kategori default dengan kategori yang benar-benar ada di data
+      const foundCats = [...new Set(allLinks.map(l => l.category))];
+      const categoryList = [...new Set([...defaultCats, ...foundCats])];
+
+      filterBar.querySelectorAll('.tab-btn:not([data-cat="All"])').forEach(btn => btn.remove());
+
+      categoryList.forEach(cat => {
+        const btn = document.createElement('button');
+        btn.className = 'tab-btn';
+        btn.setAttribute('data-cat', cat);
+        btn.onclick = function() { filterLinks(cat); };
+        btn.textContent = cat;
+        filterBar.insertBefore(btn, searchBox);
+      });
+    }
+
+    // ── FILTER ──
+    function filterLinks(category){
+      activeCategory = category;
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.cat === category);
+      });
+      searchLinks();
+    }
+
+    function searchLinks(){
+      const keyword = document.getElementById('searchInput').value.toLowerCase();
+      let filtered = activeCategory === 'All' ? allLinks : allLinks.filter(l => l.category === activeCategory);
+      filtered = filtered.filter(item => item.name.toLowerCase().includes(keyword));
+      renderLinks(filtered, activeCategory === 'All');
+    }
+
+    // ── RENDER ──
+    function renderLinks(links, showBadge) {
+      const container = document.getElementById('linkList');
+      if (!links.length) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101
+                   m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+            </svg>
+            <p>Belum ada link di kategori ini.</p>
+          </div>`;
+        return;
+      }
+
+      const html = links.map(item => `
+        <div class="link-card">
+          <div class="link-name" title="${escHtml(item.name)}">${escHtml(item.name)}</div>
+          ${showBadge ? `<span class="link-category-badge" style="display:inline-flex">${escHtml(item.category)}</span>` : ''}
+          <div class="link-actions">
+            <button class="btn-action" onclick="openLink('${escAttr(item.link)}')">Open</button>
+            <button class="btn-action copy" id="copy-${escAttr(item.id)}"
+              onclick="copyLink('${escAttr(item.link)}', '${escAttr(item.id)}')">Copy</button>
+          </div>
+        </div>`).join('');
+      container.innerHTML = `<div class="link-list">${html}</div>`;
+    }
+
+    // ── OPEN LINK ──
+    function openLink(url) { window.open(url, '_blank', 'noopener,noreferrer'); }
+
+    // ── COPY LINK ──
+    function copyLink(url, id) {
+      navigator.clipboard.writeText(url).then(function() {
+        const btn = document.getElementById('copy-' + id);
+        if (btn) {
+          btn.textContent = '✓ Copied';
+          btn.classList.add('copied');
+          setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+        }
+        showToast('Link berhasil disalin!');
+      }).catch(function() {
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Link berhasil disalin!');
+      });
+    }
+
+    // ── TOAST ──
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+
+    // ── ESCAPE HELPERS ──
+    function escHtml(str) {
+      return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function escAttr(str) { return String(str).replace(/'/g, "\\'"); }
+
+    // ── INIT ──
+    (async function init() {
+      await loadLinks();
+      loadCategories();
+    })();
+  </script>
+</body>
+</html>

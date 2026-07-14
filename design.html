@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Graphic Design Request — The Seminyak</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self';
+                 script-src 'self' 'unsafe-inline';
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+                 font-src https://fonts.gstatic.com;
+                 img-src 'self' data: https://cdn-5d8995b3f911c90950a6130b.closte.com;
+                 connect-src 'self' https://guobvhghlrlgcqbfgzdn.supabase.co;
+                 frame-ancestors 'none';">
+
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <meta http-equiv="X-Frame-Options" content="DENY">
+  <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
+
+  <style>
+    .file-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .file-list:empty { margin-top: 0; }
+    .file-list-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      background: var(--surface-raised);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      color: var(--text);
+    }
+    .file-list-item svg { flex-shrink: 0; color: var(--text-muted); }
+    .file-list-item-name {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-list-item-size {
+      flex-shrink: 0;
+      color: var(--text-muted);
+      font-size: 11.5px;
+    }
+    .file-list-item-remove {
+      flex-shrink: 0;
+      background: none;
+      border: none;
+      box-shadow: none;
+      width: auto;
+      margin: 0;
+      padding: 3px;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      transition: color var(--transition), background var(--transition);
+    }
+    .file-list-item-remove:hover {
+      color: var(--error);
+      background: var(--error-bg);
+      transform: none;
+      box-shadow: none;
+    }
+    .upload-progress-wrap {
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .upload-progress-wrap.visible { display: flex; }
+    .upload-progress-label {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+    .upload-progress-bar-track {
+      width: 100%;
+      height: 6px;
+      background: var(--border);
+      border-radius: 99px;
+      overflow: hidden;
+    }
+    .upload-progress-bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--gold);
+      border-radius: 99px;
+      transition: width 0.3s ease;
+    }
+    .upload-progress-bar-fill.simulating {
+      background-image: linear-gradient(
+        90deg,
+        var(--gold) 0%,
+        rgba(255,255,255,0.35) 50%,
+        var(--gold) 100%
+      );
+      background-size: 200% 100%;
+      animation: ts-shimmer 1.1s linear infinite;
+    }
+    @keyframes ts-shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .hp-field {
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+      tabindex: -1;
+    }
+
+    .rate-warning {
+      background: var(--error-bg);
+      color: var(--error);
+      border: 1px solid var(--error-border);
+      border-radius: var(--radius);
+      padding: 12px 16px;
+      font-size: 13.5px;
+      font-weight: 500;
+      margin-bottom: 16px;
+      display: none;
+    }
+    .rate-warning.visible { display: block; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-content">
+      <img src="https://cdn-5d8995b3f911c90950a6130b.closte.com/wp-content/uploads/2024/08/the-seminyak-logo-aug24v1.png" alt="The Seminyak">
+      <div class="brand-block">
+        <span class="brand-eyebrow">The Seminyak</span>
+        <span class="brand-name">Design Request Form</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="card">
+
+      <div class="card-heading">
+        <h1 class="card-title">Submit a Design Request</h1>
+        <p class="card-subtitle">Fill in the details below and our team will get started. Ensure all information is final before submitting.</p>
+      </div>
+
+      <div class="notice">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        All materials and details must be final and approved before submitting this form.
+      </div>
+
+      <div class="rate-warning" id="rateWarning">
+        ⚠️ Too many submissions. Please wait <span id="cooldownTimer">60</span> seconds before trying again.
+      </div>
+
+      <form id="designForm" novalidate autocomplete="off">
+
+        <div class="hp-field" aria-hidden="true">
+          <label for="hp_website">Website</label>
+          <input type="text" id="hp_website" name="website" tabindex="-1" autocomplete="off">
+        </div>
+
+        <input type="hidden" id="formTimestamp" name="formTimestamp">
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email">Email <span class="req" aria-hidden="true">*</span></label>
+            <input type="email" id="email" name="email" placeholder="your.name@seminyak.com" autocomplete="email" required maxlength="100">
+            <span class="field-error" id="emailError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="name">Full Name <span class="req" aria-hidden="true">*</span></label>
+            <input type="text" id="name" name="name" placeholder="Enter your full name" autocomplete="name" required maxlength="100">
+            <span class="field-error" id="nameError"></span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="department">Department <span class="req" aria-hidden="true">*</span></label>
+            <div class="select-wrapper">
+              <select id="department" name="department" required>
+                <option value="" disabled selected>Select your department…</option>
+                <option value="A&G">A&amp;G</option>
+                <option value="Sales & Marketing">Sales &amp; Marketing</option>
+                <option value="Front Office">Front Office</option>
+                <option value="Housekeeping">Housekeeping</option>
+                <option value="Kahyangan Spa">Kahyangan Spa</option>
+                <option value="Engineering">Engineering</option>
+                <option value="Food & Beverage">Food &amp; Beverage</option>
+                <option value="Accounting">Accounting</option>
+                <option value="HRD">HRD</option>
+                <option value="Others">Others</option>
+              </select>
+              <svg class="select-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+            <span class="field-error" id="departmentError"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="deadline">Required Deadline <span class="req" aria-hidden="true">*</span></label>
+            <input type="date" id="deadline" name="deadline" required>
+            <span class="field-error" id="deadlineError"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Supporting File(s) <span class="req" aria-hidden="true">*</span></label>
+          <p class="field-hint">Max 20 MB per file · Max 5 files · Allowed: JPG, PNG, PDF, AI, PSD, DOCX, XLSX, MP4, ZIP</p>
+
+          <input
+            type="file"
+            id="file"
+            name="file"
+            multiple
+            aria-label="Upload files"
+            style="position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; overflow:hidden;"
+          >
+
+          <div class="file-drop-area" id="dropArea" role="button" tabindex="0" aria-label="Upload supporting files">
+            <div class="file-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            </div>
+            <span class="file-msg" id="fileMsg">Click or drag file(s) here</span>
+            <span class="file-submsg">Max 20 MB per file · Max 5 files</span>
+          </div>
+
+          <div class="file-list" id="fileList"></div>
+          <span class="field-error" id="fileError"></span>
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Design Brief &amp; Notes <span class="req" aria-hidden="true">*</span></label>
+          <textarea id="notes" name="notes" placeholder="Describe your request in detail include dimensions and any references…" required maxlength="3000"></textarea>
+          <span class="field-error" id="notesError"></span>
+        </div>
+
+        <div class="upload-progress-wrap" id="uploadProgressWrap">
+          <div class="upload-progress-label">
+            <span id="uploadProgressText">Uploading files…</span>
+            <span id="uploadProgressPct">0%</span>
+          </div>
+          <div class="upload-progress-bar-track">
+            <div class="upload-progress-bar-fill" id="uploadProgressBar"></div>
+          </div>
+        </div>
+
+        <button type="submit" id="submitBtn">
+          <span class="spinner" id="btnSpinner" aria-hidden="true"></span>
+          <span id="btnText">Submit Request</span>
+        </button>
+
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <span>&copy; 2026 The Seminyak Marketing Team</span>
+  </footer>
+
+  <div id="toast" role="alert" aria-live="assertive"></div>
+
+  <script src="config.js"></script>
+  <script>
+
+    const DESIGN_CONFIG = window.SUPABASE_CONFIG || {};
+    const DESIGN_API_URL = DESIGN_CONFIG.DESIGN_API_URL
+      || (DESIGN_CONFIG.URL && DESIGN_CONFIG.URL + '/functions/v1/design-request-api');
+
+    const SECURITY = {
+      MAX_FILE_SIZE_MB   : 20,
+      MAX_FILE_COUNT     : 5,
+      MAX_NOTES_LENGTH   : 3000,
+      MAX_NAME_LENGTH    : 100,
+      MAX_EMAIL_LENGTH   : 100,
+      MIN_SUBMIT_TIME_MS : 3000,
+      RATE_LIMIT_COUNT   : 3,
+      RATE_LIMIT_WINDOW_MS: 60000,
+      COOLDOWN_SEC       : 60,
+
+      ALLOWED_EXTENSIONS : ['jpg','jpeg','png','gif','webp','pdf','ai','eps','psd','psb',
+                             'doc','docx','xls','xlsx','ppt','pptx','txt','csv',
+                             'mp4','mov','avi','zip','rar','7z'],
+
+      ALLOWED_MIME_PREFIXES: ['image/','application/pdf','application/msword',
+                               'application/vnd.','text/','video/','application/zip',
+                               'application/x-zip','application/x-rar','application/octet-stream'],
+
+      DANGEROUS_SIGNATURES: [
+        [0x4D,0x5A],
+        [0x7F,0x45,0x4C,0x46],
+        [0x23,0x21],
+        [0x3C,0x73,0x63,0x72],
+        [0x3C,0x3F,0x70,0x68],
+      ]
+    };
+
+    const RateLimiter = {
+      key: 'ts_submit_log',
+      load() {
+        try { return JSON.parse(sessionStorage.getItem(this.key) || '[]'); } catch { return []; }
+      },
+      save(log) {
+        try { sessionStorage.setItem(this.key, JSON.stringify(log)); } catch {}
+      },
+      check() {
+        const now = Date.now();
+        let log = this.load().filter(t => now - t < SECURITY.RATE_LIMIT_WINDOW_MS);
+        if (log.length >= SECURITY.RATE_LIMIT_COUNT) {
+          const oldest = log[0];
+          const waitSec = Math.ceil((SECURITY.RATE_LIMIT_WINDOW_MS - (now - oldest)) / 1000);
+          return { blocked: true, waitSec };
+        }
+        return { blocked: false };
+      },
+      record() {
+        const now = Date.now();
+        let log = this.load().filter(t => now - t < SECURITY.RATE_LIMIT_WINDOW_MS);
+        log.push(now);
+        this.save(log);
+      }
+    };
+
+    function sanitizeText(str) {
+      if (typeof str !== 'string') return '';
+      return str
+        .replace(/[<>]/g, '')
+        .replace(/javascript\s*:/gi, '')
+        .replace(/on\w+\s*=/gi, '')
+        .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+        .trim()
+        .slice(0, 5000);
+    }
+
+    function sanitizeEmail(str) {
+      return str.replace(/[^a-zA-Z0-9@._+\-]/g, '').slice(0, 100);
+    }
+
+    function getExtension(filename) {
+      return filename.split('.').pop().toLowerCase().trim();
+    }
+
+    function isExtensionAllowed(filename) {
+      const ext = getExtension(filename);
+      return SECURITY.ALLOWED_EXTENSIONS.includes(ext);
+    }
+
+    function isMimeAllowed(mime) {
+      if (!mime) return true;
+      return SECURITY.ALLOWED_MIME_PREFIXES.some(p => mime.startsWith(p));
+    }
+
+    function checkMagicBytes(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const bytes = new Uint8Array(e.target.result);
+          for (const sig of SECURITY.DANGEROUS_SIGNATURES) {
+            if (sig.every((b, i) => bytes[i] === b)) {
+              resolve({ safe: false, reason: 'File contains executable code' });
+              return;
+            }
+          }
+          resolve({ safe: true });
+        };
+        reader.onerror = () => resolve({ safe: true });
+        reader.readAsArrayBuffer(file.slice(0, 8));
+      });
+    }
+
+    async function validateFile(file) {
+      const maxBytes = SECURITY.MAX_FILE_SIZE_MB * 1024 * 1024;
+
+      if (file.size > maxBytes)
+        return { ok: false, reason: `"${file.name}" exceeds ${SECURITY.MAX_FILE_SIZE_MB} MB limit.` };
+
+      if (file.size === 0)
+        return { ok: false, reason: `"${file.name}" is empty.` };
+
+      if (!isExtensionAllowed(file.name))
+        return { ok: false, reason: `"${file.name}" — file type not allowed.` };
+
+      if (!isMimeAllowed(file.type))
+        return { ok: false, reason: `"${file.name}" — MIME type not permitted.` };
+
+      const magic = await checkMagicBytes(file);
+      if (!magic.safe)
+        return { ok: false, reason: `"${file.name}" — ${magic.reason}.` };
+
+      return { ok: true };
+    }
+
+    const fileInput  = document.getElementById('file');
+    const fileMsg    = document.getElementById('fileMsg');
+    const dropArea   = document.getElementById('dropArea');
+    const fileListEl = document.getElementById('fileList');
+    let selectedFiles = [];
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    function renderFileList() {
+      if (selectedFiles.length === 0) {
+        fileMsg.textContent = 'Click or drag file(s) here';
+        dropArea.classList.remove('has-file');
+        fileListEl.innerHTML = '';
+        return;
+      }
+      dropArea.classList.add('has-file');
+      fileMsg.textContent = selectedFiles.length === 1
+        ? selectedFiles[0].name
+        : `${selectedFiles.length} files selected`;
+
+      fileListEl.innerHTML = selectedFiles.map((f, i) => `
+        <div class="file-list-item">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span class="file-list-item-name">${escapeHtml(f.name)}</span>
+          <span class="file-list-item-size">${formatFileSize(f.size)}</span>
+          <button type="button" class="file-list-item-remove" data-remove-index="${i}" aria-label="Remove ${escapeHtml(f.name)}">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      `).join('');
+      document.getElementById('fileError').textContent = '';
+    }
+
+    function escapeHtml(str) {
+      const d = document.createElement('div');
+      d.appendChild(document.createTextNode(str));
+      return d.innerHTML;
+    }
+
+    async function addFiles(fileListInput) {
+      if (!fileListInput || fileListInput.length === 0) return;
+      const fileErrorEl = document.getElementById('fileError');
+
+      for (const f of Array.from(fileListInput)) {
+        if (selectedFiles.length >= SECURITY.MAX_FILE_COUNT) {
+          fileErrorEl.textContent = `Max ${SECURITY.MAX_FILE_COUNT} files allowed.`;
+          break;
+        }
+        const dup = selectedFiles.some(sf => sf.name === f.name && sf.size === f.size);
+        if (dup) continue;
+
+        const check = await validateFile(f);
+        if (!check.ok) {
+          showToast('✕ ' + check.reason, 'error');
+          continue;
+        }
+        selectedFiles.push(f);
+      }
+      renderFileList();
+    }
+
+    function removeFileAt(index) {
+      selectedFiles.splice(index, 1);
+      renderFileList();
+    }
+
+    fileListEl.addEventListener('click', e => {
+      const btn = e.target.closest('[data-remove-index]');
+      if (!btn) return;
+      removeFileAt(parseInt(btn.dataset.removeIndex, 10));
+    });
+
+    fileInput.addEventListener('change', e => { addFiles(e.target.files); fileInput.value = ''; });
+    dropArea.addEventListener('click', e => { if (!e.target.closest('.file-list-item-remove')) fileInput.click(); });
+    dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.classList.add('dragover'); });
+    dropArea.addEventListener('dragleave', () => dropArea.classList.remove('dragover'));
+    dropArea.addEventListener('drop', e => { e.preventDefault(); dropArea.classList.remove('dragover'); addFiles(e.dataTransfer.files); });
+    dropArea.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInput.click(); } });
+
+    const showToast = (msg, type = 'success') => {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.className = `show ${type}`;
+      setTimeout(() => { toast.className = ''; }, 4500);
+    };
+
+    const setError   = (id, msg) => { document.getElementById(id + 'Error').textContent = msg; };
+    const clearError = id => { document.getElementById(id + 'Error').textContent = ''; };
+
+    ['email','name','department','deadline','notes'].forEach(id => {
+      const el = document.getElementById(id);
+      el.addEventListener('input',  () => clearError(id));
+      el.addEventListener('change', () => clearError(id));
+    });
+
+    function validate() {
+      let ok = true;
+      const email    = sanitizeEmail(document.getElementById('email').value.trim());
+      const name     = sanitizeText(document.getElementById('name').value.trim());
+      const dept     = document.getElementById('department').value;
+      const deadline = document.getElementById('deadline').value;
+      const notes    = sanitizeText(document.getElementById('notes').value.trim());
+
+      if (!name || name.length < 2)
+        { setError('name', 'Full name is required (min 2 characters).'); ok = false; }
+      else if (name.length > SECURITY.MAX_NAME_LENGTH)
+        { setError('name', `Name too long (max ${SECURITY.MAX_NAME_LENGTH} characters).`); ok = false; }
+
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))
+        { setError('email', 'Enter a valid email address.'); ok = false; }
+      else if (email.length > SECURITY.MAX_EMAIL_LENGTH)
+        { setError('email', 'Email too long.'); ok = false; }
+
+      const validDepts = ['A&G','Sales & Marketing','Front Office','Housekeeping',
+                          'Kahyangan Spa','Engineering','Food & Beverage','Accounting','HRD','Others'];
+      if (!dept || !validDepts.includes(dept))
+        { setError('department', 'Please select a valid department.'); ok = false; }
+
+      if (!deadline)
+        { setError('deadline', 'Please set a required deadline.'); ok = false; }
+      else {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const dl    = new Date(deadline + 'T00:00:00');
+        if (dl < today) { setError('deadline', 'Deadline cannot be in the past.'); ok = false; }
+      }
+
+      if (selectedFiles.length === 0)
+        { setError('file', 'Please upload at least one supporting file.'); ok = false; }
+      else if (selectedFiles.length > SECURITY.MAX_FILE_COUNT)
+        { setError('file', `Max ${SECURITY.MAX_FILE_COUNT} files allowed.`); ok = false; }
+
+      if (!notes || notes.length < 10)
+        { setError('notes', 'Please describe your request (min 10 characters).'); ok = false; }
+      else if (notes.length > SECURITY.MAX_NOTES_LENGTH)
+        { setError('notes', `Notes too long (max ${SECURITY.MAX_NOTES_LENGTH} characters).`); ok = false; }
+
+      return ok;
+    }
+
+    function readFileAsBase64(file, onProgress) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onprogress = e => {
+          if (e.lengthComputable && onProgress) onProgress(e.loaded / e.total);
+        };
+        reader.onload = () => resolve({
+          fileName:   sanitizeText(file.name),
+          mimeType:   file.type || 'application/octet-stream',
+          fileBase64: reader.result.split(',')[1]
+        });
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    const progressWrap = document.getElementById('uploadProgressWrap');
+    const progressBar  = document.getElementById('uploadProgressBar');
+    const progressPct  = document.getElementById('uploadProgressPct');
+    const progressText = document.getElementById('uploadProgressText');
+
+    function showProgress(label, pct) {
+      progressWrap.classList.add('visible');
+      progressBar.classList.remove('simulating');
+      progressText.textContent = sanitizeText(label);
+      const p = Math.min(100, Math.round(pct * 100));
+      progressBar.style.width = p + '%';
+      progressPct.textContent = p + '%';
+    }
+
+    function hideProgress() {
+      progressWrap.classList.remove('visible');
+      progressBar.classList.remove('simulating');
+      progressBar.style.width = '0%';
+      progressPct.textContent = '0%';
+    }
+
+    /*
+     * SIMULATED UPLOAD PROGRESS
+     * ------------------------------------------------------------
+     * Sama seperti sebelumnya di versi Apps Script: fetch() ke Edge
+     * Function juga tidak memberi byte-level progress event, jadi kita
+     * tetap animasikan progress bar dari titik awal ke ceiling (belum
+     * 100%) selama request berjalan, lalu snap ke 100% saat respons
+     * benar-benar diterima.
+     */
+    function startSimulatedProgress(label, { from = 0, ceiling = 92, durationMs = 6000 } = {}) {
+      progressWrap.classList.add('visible');
+      progressText.textContent = sanitizeText(label);
+      progressBar.classList.add('simulating');
+
+      let start = null;
+      let rafId = null;
+      let stopped = false;
+
+      function tick(ts) {
+        if (stopped) return;
+        if (start === null) start = ts;
+        const elapsed = ts - start;
+        const t = Math.min(1, elapsed / durationMs);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const pct = from + (ceiling - from) * eased;
+
+        progressBar.style.width = pct + '%';
+        progressPct.textContent = Math.round(pct) + '%';
+
+        if (t < 1) {
+          rafId = requestAnimationFrame(tick);
+        }
+      }
+      rafId = requestAnimationFrame(tick);
+
+      return {
+        finish(finalLabel) {
+          stopped = true;
+          if (rafId) cancelAnimationFrame(rafId);
+          progressBar.classList.remove('simulating');
+          progressText.textContent = sanitizeText(finalLabel || label);
+          progressBar.style.width = '100%';
+          progressPct.textContent = '100%';
+        },
+        stop() {
+          stopped = true;
+          if (rafId) cancelAnimationFrame(rafId);
+        }
+      };
+    }
+
+    let cooldownInterval = null;
+
+    function startCooldownUI(seconds) {
+      const warning   = document.getElementById('rateWarning');
+      const timerEl   = document.getElementById('cooldownTimer');
+      const submitBtn = document.getElementById('submitBtn');
+
+      warning.classList.add('visible');
+      submitBtn.disabled = true;
+      timerEl.textContent = seconds;
+
+      clearInterval(cooldownInterval);
+      let remaining = seconds;
+      cooldownInterval = setInterval(() => {
+        remaining--;
+        timerEl.textContent = remaining;
+        if (remaining <= 0) {
+          clearInterval(cooldownInterval);
+          warning.classList.remove('visible');
+          submitBtn.disabled = false;
+        }
+      }, 1000);
+    }
+
+    document.getElementById('formTimestamp').value = Date.now();
+
+    document.getElementById('rateWarning').classList.remove('visible');
+    document.getElementById('submitBtn').disabled = false;
+
+    document.getElementById('designForm').addEventListener('submit', async e => {
+      e.preventDefault();
+
+      const hp = document.getElementById('hp_website').value;
+      if (hp && hp.trim() !== '') {
+        showToast('✕ Submission blocked.', 'error');
+        return;
+      }
+
+      const elapsed = Date.now() - parseInt(document.getElementById('formTimestamp').value || '0', 10);
+      if (elapsed < SECURITY.MIN_SUBMIT_TIME_MS) {
+        showToast('✕ Please take a moment to fill the form properly.', 'error');
+        return;
+      }
+
+      const rateCheck = RateLimiter.check();
+      if (rateCheck.blocked) {
+        startCooldownUI(rateCheck.waitSec);
+        return;
+      }
+
+      if (!validate()) return;
+
+      if (!DESIGN_API_URL || !DESIGN_CONFIG.ANON_KEY) {
+        showToast('✕ Supabase config is missing. Please contact Marketing.', 'error');
+        return;
+      }
+
+      const btn     = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const spinner = document.getElementById('btnSpinner');
+
+      btn.disabled          = true;
+      btnText.textContent   = 'Submitting…';
+      spinner.style.display = 'block';
+
+      let simProgress = null;
+
+      try {
+        const files = [];
+        for (let i = 0; i < selectedFiles.length; i++) {
+          const f     = selectedFiles[i];
+          const label = selectedFiles.length === 1
+            ? 'Reading file…'
+            : `Reading file ${i + 1} of ${selectedFiles.length}…`;
+
+          showProgress(label, 0);
+
+          const result = await readFileAsBase64(f, ratio => {
+            const overall = (i + ratio) / selectedFiles.length;
+            showProgress(label, overall);
+          });
+          files.push(result);
+        }
+
+        const payload = {
+          action     : 'submit',
+          email      : sanitizeEmail(document.getElementById('email').value.trim()),
+          name       : sanitizeText(document.getElementById('name').value.trim()),
+          department : document.getElementById('department').value,
+          deadline   : document.getElementById('deadline').value,
+          notes      : sanitizeText(document.getElementById('notes').value.trim()),
+          files,
+
+          _ts        : Date.now(),
+          _origin    : window.location.origin
+        };
+
+        RateLimiter.record();
+
+        const totalBytes = selectedFiles.reduce((sum, f) => sum + f.size, 0);
+        const estDurationMs = Math.min(15000, Math.max(2500, totalBytes / 50000));
+
+        simProgress = startSimulatedProgress('Uploading to server…', {
+          from: 0,
+          ceiling: 92,
+          durationMs: estDurationMs
+        });
+
+        const res = await fetch(DESIGN_API_URL, {
+          method  : 'POST',
+          body    : JSON.stringify(payload),
+          headers : {
+            'Content-Type': 'application/json',
+            'apikey': DESIGN_CONFIG.ANON_KEY
+          }
+        });
+
+        const result = await res.json().catch(() => ({}));
+
+        if (!res.ok || result.status === 'error') {
+          throw new Error(result.message || 'Submission failed');
+        }
+
+        simProgress.finish('Upload complete!');
+        await new Promise(r => setTimeout(r, 400));
+        hideProgress();
+
+        showToast('✓ Request submitted successfully!', 'success');
+        document.getElementById('designForm').reset();
+        document.getElementById('formTimestamp').value = Date.now();
+        selectedFiles = [];
+        renderFileList();
+
+      } catch (err) {
+        if (simProgress) simProgress.stop();
+        hideProgress();
+        showToast('✕ Submission failed. Check your connection and try again.', 'error');
+      } finally {
+        btn.disabled          = false;
+        btnText.textContent   = 'Submit Request';
+        spinner.style.display = 'none';
+      }
+    });
+  </script>
+</body>
+</html>

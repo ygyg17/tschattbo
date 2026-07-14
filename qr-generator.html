@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>QR Code Generator - Marketing The Seminyak</title>
+
+  <!-- Font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Main website style -->
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    .qr-card {
+      max-width: 720px;
+    }
+
+    .qr-back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--gold, #BA8F2E);
+      text-decoration: none;
+      font-size: 13.5px;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .qr-back-link:hover {
+      color: var(--gold-hover, #9f7621);
+      text-decoration: underline;
+    }
+
+    .qr-color-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .qr-color-field {
+      border: 1.5px solid var(--border, #e5e7eb);
+      border-radius: var(--radius, 14px);
+      padding: 12px;
+      background: var(--surface-raised, #f9fafb);
+    }
+
+    .qr-color-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted, #6b7280);
+      margin-bottom: 8px;
+    }
+
+    .qr-color-control {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .qr-color-control input[type="color"] {
+      width: 42px;
+      min-width: 42px;
+      height: 40px;
+      padding: 3px;
+      border: 1px solid var(--border, #e5e7eb);
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .qr-color-control input[type="text"] {
+      width: 100%;
+      height: 40px;
+      padding: 0 10px;
+      border: 1px solid var(--border, #e5e7eb);
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2px;
+      text-transform: uppercase;
+      background: var(--surface, #ffffff);
+      color: var(--text, #111827);
+      outline: none;
+    }
+
+    .qr-color-control input[type="text"]:focus {
+      border-color: var(--gold, #BA8F2E);
+      box-shadow: 0 0 0 3px rgba(186, 143, 46, 0.12);
+    }
+
+    .qr-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 12px;
+      border: 1.5px solid var(--border, #e5e7eb);
+      border-radius: var(--radius, 14px);
+      background: var(--surface-raised, #f9fafb);
+    }
+
+    .qr-checkbox input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--gold, #BA8F2E);
+      cursor: pointer;
+    }
+
+    .qr-checkbox span {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text, #111827);
+    }
+
+    .qr-checkbox small {
+      display: block;
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-muted, #6b7280);
+      margin-top: 2px;
+    }
+
+.qr-preview-box {
+  margin-top: 28px;
+  padding: 24px;
+  border-radius: var(--radius-lg, 20px);
+  border: 1.5px dashed var(--border, #e5e7eb);
+  text-align: center;
+  min-height: 190px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  overflow: hidden;
+  background:
+    linear-gradient(45deg, #eeeeee 25%, transparent 25%),
+    linear-gradient(-45deg, #eeeeee 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #eeeeee 75%),
+    linear-gradient(-45deg, transparent 75%, #eeeeee 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+  background-color: #ffffff;
+}
+
+.qr-preview-box canvas {
+  width: min(100%, 360px);
+  height: auto;
+  max-height: 360px;
+  object-fit: contain;
+  border-radius: var(--radius-sm, 10px);
+}
+
+@media (max-width: 520px) {
+  .qr-preview-box canvas {
+    width: min(100%, 280px);
+    max-height: 280px;
+  }
+}
+    .qr-empty-text {
+      color: var(--text-muted, #6b7280);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .qr-download-btn {
+      display: none;
+      margin-top: 4px;
+      text-decoration: none;
+      background: var(--gold, #BA8F2E);
+      color: #fff;
+      padding: 13px 20px;
+      border-radius: var(--radius, 14px);
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 3px 12px var(--gold-shadow, rgba(186, 143, 46, 0.25));
+      transition: 0.2s ease;
+    }
+
+    .qr-download-btn:hover {
+      background: var(--gold-hover, #9f7621);
+      transform: translateY(-1px);
+    }
+
+    .qr-status {
+      font-size: 13px;
+      color: var(--text-muted, #6b7280);
+      margin-top: 10px;
+    }
+
+    .qr-status.error {
+      color: #dc2626;
+    }
+
+    .qr-status.success {
+      color: #15803d;
+    }
+
+    .qr-color-field.disabled {
+      opacity: 0.45;
+      pointer-events: none;
+    }
+
+    #toast {
+      position: fixed;
+      left: 50%;
+      bottom: 26px;
+      transform: translateX(-50%) translateY(20px);
+      background: #111827;
+      color: #fff;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      opacity: 0;
+      pointer-events: none;
+      transition: 0.25s ease;
+      z-index: 9999;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #toast.success {
+      background: #15803d;
+    }
+
+    #toast.error {
+      background: #dc2626;
+    }
+
+    @media (max-width: 720px) {
+      .qr-color-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .qr-preview-box {
+        padding: 18px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div class="header-content">
+      <img
+        src="https://cdn-5d8995b3f911c90950a6130b.closte.com/wp-content/uploads/2024/08/the-seminyak-logo-aug24v1.png"
+        alt="The Seminyak"
+      >
+
+      <div class="brand-block">
+        <span class="brand-eyebrow">Marketing Team</span>
+        <span class="brand-name">QR Code Generator</span>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="card qr-card">
+      <a href="index.html" class="qr-back-link">← Back to Dashboard</a>
+
+      <div class="card-heading">
+        <h1 class="card-title">QR Code Generator</h1>
+        <p class="card-subtitle">
+          Create custom QR codes for links, forms, menus, promotions, or internal marketing materials.
+        </p>
+      </div>
+
+      <div class="notice">
+        Enter your link or text, customize the colors, then download the QR code as a PNG file.
+      </div>
+
+      <div class="form-group">
+        <label for="qrText">Link or Text <span class="req">*</span></label>
+        <textarea
+          id="qrText"
+          rows="4"
+          placeholder="Example: https://forms.gle/7H32KvAJ279XRCuTA"
+        ></textarea>
+        <span class="field-error" id="qrTextError"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="qrSize">QR Code Size</label>
+
+        <div class="select-wrapper">
+          <select id="qrSize">
+            <option value="300">300 x 300 px</option>
+            <option value="600" selected>600 x 600 px</option>
+            <option value="1000">1000 x 1000 px</option>
+          </select>
+          <span class="select-arrow">⌄</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Color Settings</label>
+
+        <div class="qr-color-grid">
+          <div class="qr-color-field">
+            <span class="qr-color-label">QR Color</span>
+
+            <div class="qr-color-control">
+              <input type="color" id="qrColorPicker" value="#BA8F2E">
+              <input type="text" id="qrColorCode" value="#BA8F2E" maxlength="7" placeholder="#BA8F2E">
+            </div>
+          </div>
+
+          <div class="qr-color-field" id="bgColorField">
+            <span class="qr-color-label">Background Color</span>
+
+            <div class="qr-color-control">
+              <input type="color" id="bgColorPicker" value="#FFFFFF">
+              <input type="text" id="bgColorCode" value="#FFFFFF" maxlength="7" placeholder="#FFFFFF">
+            </div>
+          </div>
+        </div>
+
+        <label class="qr-checkbox" for="transparentBg">
+          <input type="checkbox" id="transparentBg">
+          <span>
+            Transparent Background
+            <small>Use this for PNG files without a background color.</small>
+          </span>
+        </label>
+      </div>
+
+      <button type="button" id="generateBtn">
+        Generate QR Code
+      </button>
+
+      <p class="qr-status" id="libraryStatus">
+        Loading QR library...
+      </p>
+
+      <div class="qr-preview-box">
+        <p class="qr-empty-text" id="qrEmptyText">
+          QR code preview will appear here.
+        </p>
+
+        <canvas id="qrCanvas" style="display:none;"></canvas>
+
+        <a id="downloadBtn" class="qr-download-btn" download="qr-code.png">
+          Download QR Code
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>© 2026 The Seminyak Marketing Team</span>
+  </footer>
+
+  <div id="toast"></div>
+
+  <script>
+    const QR_CDN_LIST = [
+      "https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js",
+      "https://unpkg.com/qrcode@1.5.4/build/qrcode.min.js",
+      "https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js",
+      "https://unpkg.com/qrcode/build/qrcode.min.js"
+    ];
+
+    let qrLibraryPromise = null;
+
+    function showToast(message, type = "success") {
+      const toast = document.getElementById("toast");
+
+      toast.textContent = message;
+      toast.className = type;
+      toast.classList.add("show");
+
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 2600);
+    }
+
+    function setLibraryStatus(message, type = "") {
+      const status = document.getElementById("libraryStatus");
+
+      if (!status) return;
+
+      status.textContent = message;
+      status.className = "qr-status";
+
+      if (type) {
+        status.classList.add(type);
+      }
+    }
+
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const existingScript = document.querySelector(`script[src="${src}"]`);
+
+        if (existingScript) {
+          resolve();
+          return;
+        }
+
+        const script = document.createElement("script");
+        script.src = src;
+        script.async = true;
+
+        script.onload = () => resolve();
+        script.onerror = () => reject(new Error("Failed to load: " + src));
+
+        document.head.appendChild(script);
+      });
+    }
+
+    async function ensureQRCodeLibrary() {
+      if (typeof QRCode !== "undefined") {
+        return true;
+      }
+
+      if (qrLibraryPromise) {
+        return qrLibraryPromise;
+      }
+
+      qrLibraryPromise = new Promise(async (resolve, reject) => {
+        for (const cdn of QR_CDN_LIST) {
+          try {
+            await loadScript(cdn);
+
+            if (typeof QRCode !== "undefined") {
+              resolve(true);
+              return;
+            }
+          } catch (error) {
+            console.warn(error.message);
+          }
+        }
+
+        reject(new Error("QRCode library could not be loaded from all CDN sources."));
+      });
+
+      return qrLibraryPromise;
+    }
+
+    function isValidHexColor(value) {
+      return /^#([0-9A-Fa-f]{6})$/.test(value);
+    }
+
+    function normalizeHex(value) {
+      let color = value.trim();
+
+      if (!color.startsWith("#")) {
+        color = "#" + color;
+      }
+
+      return color.toUpperCase();
+    }
+
+    function syncColorInputs(pickerId, codeId) {
+      const picker = document.getElementById(pickerId);
+      const code = document.getElementById(codeId);
+
+      picker.addEventListener("input", function () {
+        code.value = picker.value.toUpperCase();
+      });
+
+      code.addEventListener("input", function () {
+        let value = normalizeHex(code.value);
+
+        code.value = value;
+
+        if (isValidHexColor(value)) {
+          picker.value = value;
+        }
+      });
+
+      code.addEventListener("blur", function () {
+        let value = normalizeHex(code.value);
+
+        if (!isValidHexColor(value)) {
+          value = picker.value.toUpperCase();
+          code.value = value;
+          showToast("Please enter a valid hex color code.", "error");
+          return;
+        }
+
+        code.value = value;
+        picker.value = value;
+      });
+    }
+
+    function updateTransparentBackgroundUI() {
+      const transparentBg = document.getElementById("transparentBg");
+      const bgColorField = document.getElementById("bgColorField");
+
+      if (transparentBg.checked) {
+        bgColorField.classList.add("disabled");
+      } else {
+        bgColorField.classList.remove("disabled");
+      }
+    }
+
+    async function generateQR() {
+      const textInput = document.getElementById("qrText");
+      const sizeInput = document.getElementById("qrSize");
+
+      const qrColorCode = document.getElementById("qrColorCode");
+      const bgColorCode = document.getElementById("bgColorCode");
+      const transparentBg = document.getElementById("transparentBg");
+
+      const canvas = document.getElementById("qrCanvas");
+      const downloadBtn = document.getElementById("downloadBtn");
+      const errorText = document.getElementById("qrTextError");
+      const emptyText = document.getElementById("qrEmptyText");
+      const generateBtn = document.getElementById("generateBtn");
+
+      const text = textInput.value.trim();
+      const size = Number(sizeInput.value);
+
+      const qrColor = normalizeHex(qrColorCode.value);
+      const bgColor = transparentBg.checked ? "#0000" : normalizeHex(bgColorCode.value);
+
+      errorText.textContent = "";
+
+      if (!text) {
+        errorText.textContent = "Please enter a link or text first.";
+        showToast("Link or text is required.", "error");
+        return;
+      }
+
+      if (!isValidHexColor(qrColor)) {
+        showToast("Please enter a valid QR color code.", "error");
+        return;
+      }
+
+      if (!transparentBg.checked && !isValidHexColor(bgColor)) {
+        showToast("Please enter a valid background color code.", "error");
+        return;
+      }
+
+      try {
+        generateBtn.disabled = true;
+        generateBtn.textContent = "Generating...";
+        setLibraryStatus("Preparing QR library...");
+
+        await ensureQRCodeLibrary();
+
+        QRCode.toCanvas(canvas, text, {
+          width: size,
+          margin: 2,
+          errorCorrectionLevel: "H",
+          color: {
+            dark: qrColor,
+            light: bgColor
+          }
+        }, function (error) {
+          generateBtn.disabled = false;
+          generateBtn.textContent = "Generate QR Code";
+
+          if (error) {
+            console.error(error);
+            setLibraryStatus("Failed to generate QR code.", "error");
+            showToast("Failed to generate QR code.", "error");
+            return;
+          }
+
+          const imageUrl = canvas.toDataURL("image/png");
+
+          canvas.style.display = "block";
+          emptyText.style.display = "none";
+
+          downloadBtn.href = imageUrl;
+          downloadBtn.style.display = "inline-block";
+
+          setLibraryStatus("QR code generated successfully.", "success");
+          showToast("QR code generated successfully.", "success");
+        });
+
+      } catch (error) {
+        console.error(error);
+
+        generateBtn.disabled = false;
+        generateBtn.textContent = "Generate QR Code";
+
+        setLibraryStatus("QR library failed to load. Please check your connection.", "error");
+        showToast("QR library failed to load.", "error");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", async function () {
+      const generateBtn = document.getElementById("generateBtn");
+      const transparentBg = document.getElementById("transparentBg");
+
+      generateBtn.addEventListener("click", generateQR);
+
+      syncColorInputs("qrColorPicker", "qrColorCode");
+      syncColorInputs("bgColorPicker", "bgColorCode");
+
+      transparentBg.addEventListener("change", updateTransparentBackgroundUI);
+      updateTransparentBackgroundUI();
+
+      try {
+        await ensureQRCodeLibrary();
+        setLibraryStatus("QR library ready.", "success");
+      } catch (error) {
+        console.error(error);
+        setLibraryStatus("QR library is not loaded yet. The button will try to load it again.", "error");
+      }
+    });
+  </script>
+</body>
+</html>
