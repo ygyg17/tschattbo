@@ -7,6 +7,7 @@
   const MAX_MESSAGE_LENGTH = 800;
   const MAX_CONTEXT_MESSAGES = 8;
   const messages = [];
+  let bookingState = null;
 
   const widget = document.createElement('section');
   widget.id = 'seminyakAssistant';
@@ -31,6 +32,7 @@
       </header>
       <div class="ai-messages" aria-live="polite" aria-label="Chat messages"></div>
       <div class="ai-suggestions" aria-label="Suggested questions">
+        <button type="button">Reserve a room</button>
         <button type="button">What room types are available?</button>
         <button type="button">What dining options do you have?</button>
         <button type="button">How can I contact the resort?</button>
@@ -120,7 +122,40 @@
     });
   }
 
-  function addMessage(role, text, pending) {
+  function renderBookingDetails(container, booking) {
+    if (!booking || typeof booking !== 'object') return;
+    let bookingUrl;
+    try {
+      bookingUrl = new URL(String(booking.url || ''));
+    } catch {
+      return;
+    }
+    if (bookingUrl.protocol !== 'https:' || bookingUrl.hostname !== 'www.book-secure.com') return;
+
+    const details = document.createElement('dl');
+    details.className = 'ai-booking-details';
+    [
+      ['Check-in', booking.checkInLabel],
+      ['Check-out', booking.checkOutLabel],
+      ['Guests', `${booking.adults} ${booking.adults === 1 ? 'adult' : 'adults'}, ${booking.children} ${booking.children === 1 ? 'child' : 'children'}`],
+    ].forEach(([label, value]) => {
+      const term = document.createElement('dt');
+      const description = document.createElement('dd');
+      term.textContent = label;
+      description.textContent = String(value || '');
+      details.append(term, description);
+    });
+
+    const button = document.createElement('a');
+    button.className = 'ai-booking-button';
+    button.href = bookingUrl.toString();
+    button.target = '_blank';
+    button.rel = 'noopener noreferrer';
+    button.textContent = 'Reserve Your Room';
+    container.append(details, button);
+  }
+
+  function addMessage(role, text, pending, booking) {
     const row = document.createElement('div');
     row.className = `ai-message-row ai-message-${role}`;
     const bubble = document.createElement('div');
@@ -130,7 +165,10 @@
       bubble.setAttribute('aria-label', 'Assistant is typing');
       bubble.innerHTML = '<span></span><span></span><span></span>';
     } else {
-      if (role === 'assistant') renderAssistantContent(bubble, text);
+      if (role === 'assistant') {
+        renderAssistantContent(bubble, text);
+        renderBookingDetails(bubble, booking);
+      }
       else bubble.textContent = text;
     }
     row.appendChild(bubble);
@@ -177,6 +215,7 @@
         body: JSON.stringify({
           message: cleanText,
           messages: messages.slice(-MAX_CONTEXT_MESSAGES),
+          bookingState,
           page: window.location.pathname
         })
       });
@@ -185,8 +224,11 @@
 
       const answer = String(result.answer || '').trim();
       if (!answer) throw new Error('Sorry, I could not generate a reply just now. Please try again in a moment.');
+      if (Object.prototype.hasOwnProperty.call(result, 'bookingState')) {
+        bookingState = result.bookingState && typeof result.bookingState === 'object' ? result.bookingState : null;
+      }
       typing.remove();
-      addMessage('assistant', answer);
+      addMessage('assistant', answer, false, result.booking);
       messages.push({ role: 'assistant', content: answer });
     } catch (error) {
       typing.remove();
